@@ -4,13 +4,15 @@ import androidx.compose.material.Scaffold
 
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.roque.carlos.menutec.presentation.theme.MenutecTheme
 import com.roque.carlos.menutec.presentation.views.auth.login.components.LoginContent
 
 @Composable
-fun LoginView(){
+fun LoginView(navController : NavHostController){
     Scaffold{paddingValues ->
-        LoginContent(paddingValues)
+        LoginContent(navController = navController, paddingValues)
     }
 }
 
@@ -18,6 +20,6 @@ fun LoginView(){
 @Composable
 fun LoginViewPreview() {
     MenutecTheme {
-        LoginView()
+        LoginView(rememberNavController())
     }
 }

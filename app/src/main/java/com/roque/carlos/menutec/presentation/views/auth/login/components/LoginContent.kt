@@ -1,27 +1,53 @@
 package com.roque.carlos.menutec.presentation.views.auth.login.components
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Button
 import androidx.compose.material.Card
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.ColorMatrix
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
 import com.roque.carlos.menutec.R
+import com.roque.carlos.menutec.presentation.navigation.screen.AuthScreen
+import com.roque.carlos.menutec.presentation.views.auth.login.LoginViewModel
+
 
 @Composable
-fun LoginContent(paddingValues: PaddingValues){
+fun LoginContent(navController: NavHostController, paddingValues: PaddingValues, vm: LoginViewModel = hiltViewModel()){
+
+    val  state = vm.state
+    val context = LocalContext.current
+
+    LaunchedEffect(key1 = vm.errorMessage){
+        if (vm.errorMessage != ""){
+            Toast.makeText(context,vm.errorMessage, Toast.LENGTH_LONG).show()
+        }
+    }
+
     Box(modifier = Modifier
         .padding(paddingValues = paddingValues)
         .fillMaxSize()) {
@@ -43,7 +69,7 @@ fun LoginContent(paddingValues: PaddingValues){
                     .height(100.dp)
                     .width(100.dp)
                 ,
-                painter = painterResource(id = R.drawable.tecsup_icocno),
+                painter = painterResource(id = R.drawable.tecsup2),
                 contentDescription = "Logo"
             )
             Text(
@@ -64,7 +90,9 @@ fun LoginContent(paddingValues: PaddingValues){
                 ),
                 backgroundColor = Color.Transparent
             ) {
-                Column (modifier = Modifier.padding(20.dp)){
+                Column (modifier = Modifier
+                    .padding(20.dp)
+                    .verticalScroll(rememberScrollState())){
 
                     Text(
                         modifier = Modifier.padding(bottom = 20.dp),
@@ -75,16 +103,20 @@ fun LoginContent(paddingValues: PaddingValues){
                     )
 
                     TextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = "",
-                        onValueChange = {},
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 5.dp),
+                        value = state.email,
+                        onValueChange = {text ->
+                                        vm.onEmailInput(text)
+                        },
                         label = {
                             Text(
                                 text = "Correo electronico",
                                 color = Color.White,
                                 fontSize = 15.sp
                             )
-                        },
+                        },textStyle = TextStyle(color = Color.White),
                         leadingIcon = {
                             Image(
                                 modifier = Modifier
@@ -94,20 +126,25 @@ fun LoginContent(paddingValues: PaddingValues){
                                 painter = painterResource(id = R.drawable.gmail),
                                 contentDescription = "gmail_logo"
                             )
-                        }
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email)
                     )
                     TextField(
-                        modifier = Modifier.fillMaxWidth(),
-                        value = "",
-                        onValueChange = {},
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 5.dp),
+                        value = state.password,
+                        onValueChange = {text ->
+                                        vm.onPasswordInput(text)
+                        },
                         label = {
                             Text(
                                 text = "Contraseña",
                                 color = Color.White,
-                                fontSize = 15.sp
-
+                                fontSize = 15.sp,
                             )
-                        },
+                        },textStyle = TextStyle(color = Color.White),
+
                         leadingIcon = {
                             Image(
                                 modifier = Modifier
@@ -117,11 +154,14 @@ fun LoginContent(paddingValues: PaddingValues){
                                 painter = painterResource(id = R.drawable.clave),
                                 contentDescription = "clave_logo"
                             )
-                        }
+                        },
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
+                        visualTransformation = PasswordVisualTransformation()
                     )
+                    Spacer(modifier = Modifier.height(15.dp))
                     Button(
                         modifier = Modifier.fillMaxWidth(),
-                        onClick = {  }) {
+                        onClick = { vm.validateFrom()}) {
                         Text(
                             text = "Iniciar sesion",
                             color = Color.White,
@@ -142,9 +182,11 @@ fun LoginContent(paddingValues: PaddingValues){
                         )
                         Spacer(modifier = Modifier.width(6.dp))
                         Text(
+                            modifier = Modifier.clickable { navController.navigate(route = AuthScreen.Register.route ) },
                             text = "Registrate",
                             color = Color.Blue,
-                            fontSize = 18.sp
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
                         )
                     }
                 }
